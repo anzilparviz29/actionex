@@ -29,9 +29,33 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # 🏗️ Create Resource Group (if not exists)
+      - name: Create Resource Group
+        run: |
+          az group create --name my-resource-group --location eastus
+
+      # 🏗️ Create App Service Plan (Linux, free tier F1)
+      - name: Create App Service Plan
+        run: |
+          az appservice plan create \
+            --name my-app-service-plan \
+            --resource-group my-resource-group \
+            --sku F1 \
+            --is-linux
+
+      # 🏗️ Create Web App (Python 3.10 runtime)
+      - name: Create Web App
+        run: |
+          az webapp create \
+            --resource-group my-resource-group \
+            --plan my-app-service-plan \
+            --name my-flask-xox-app \
+            --runtime "PYTHON:3.10" \
+            --deployment-local-git
+
       # 🔹 Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "YOUR_AZURE_APP_NAME"
+          app-name: "my-flask-xox-app"
           package: .
